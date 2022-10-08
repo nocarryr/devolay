@@ -67,12 +67,22 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    # !!! Begin changes not to be included upstream repo
     - name: Build with Gradle
+      if: ${{ github.repository_owner == 'WalkerKnapp' }}
       run: ./gradlew publishToMavenLocal -DandroidNdk=/usr/local/lib/android/sdk/ndk-bundle
       env:
         PGP_KEY: ${{ secrets.PGP_KEY }}
         PGP_KEY_ID: ${{ secrets.PGP_KEY_ID }}
         PGP_PASSWORD: ${{ secrets.PGP_PASSWORD }}
+
+    - name: Gradlew assemble and install
+      if: ${{ github.repository_owner != 'WalkerKnapp' }}
+      run: |
+        ./gradlew assemble
+        ./gradlew install
+    # !!! End changes not to be included in upstream repo
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v1
